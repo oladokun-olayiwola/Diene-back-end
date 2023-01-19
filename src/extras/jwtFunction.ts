@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
-const createJWT = (payload: string) => {
+import { user } from '../interfaces/Types';
+const createJWT = (payload: user) => {
     const token = jwt.sign({payload}, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_LIFETIME,
     });

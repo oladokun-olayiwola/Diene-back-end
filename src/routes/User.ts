@@ -1,10 +1,10 @@
-import express from 'express'
-import {login, register} from '../controllers/User'
+import express from "express";
 
 const router = express.Router()
 
+import {getAllUsers, getSingleUser, updateUser, deleteUser} from '../controllers/User'
 
-router.route('/login').post(login)
-router.route("/register").post(register);
+router.get('/', getAllUsers)
+router.route('/:id').get(getSingleUser).patch(updateUser).delete(deleteUser)
 
 export default router

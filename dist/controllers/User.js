@@ -12,47 +12,53 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.register = exports.login = void 0;
-require("express-async-errors");
-const errors_1 = require("../errors");
-const createUserToken_1 = __importDefault(require("../extras/createUserToken"));
-const User_1 = __importDefault(require("../models/User"));
-const attachCookieToResponse_1 = __importDefault(require("../extras/attachCookieToResponse"));
+exports.deleteUser = exports.updateUser = exports.getSingleUser = exports.getAllUsers = void 0;
 const http_status_codes_1 = require("http-status-codes");
-const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email, password } = req.body;
-    if (!req.body || !req.body.email || !req.body.password) {
-        throw new errors_1.unAuthenticatedError("Please Provide all values");
-    }
-    const user = yield User_1.default.findOne({ email });
+const User_1 = __importDefault(require("../models/User"));
+const errors_1 = require("../errors");
+const getAllUsers = (_, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield User_1.default.find({});
+    res.status(http_status_codes_1.StatusCodes.OK).json({ user });
+});
+exports.getAllUsers = getAllUsers;
+const getSingleUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const user = yield User_1.default.findOne({ _id: id });
     if (!user) {
-        throw new errors_1.badRequestError('Invalid credentials');
+        throw new errors_1.notFoundError("Invalid request");
     }
-    const isPasswordCorrect = yield user.comparePassword(password);
-    if (!isPasswordCorrect) {
-        throw new errors_1.badRequestError('Invalid Credentials');
-    }
-    const payload = (0, createUserToken_1.default)(user);
-    (0, attachCookieToResponse_1.default)(res, payload);
-    res.status(http_status_codes_1.StatusCodes.OK).json({ payload });
+    res.status(http_status_codes_1.StatusCodes.OK).json(user);
 });
-exports.login = login;
-const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email, password, name } = req.body;
-    if (!req.body || !req.body.email || !req.body.password || !req.body.name) {
-        throw new errors_1.unAuthenticatedError("Please Provide all values");
+exports.getSingleUser = getSingleUser;
+const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { name, email } = req.body;
+    const user = yield User_1.default.find({ _id: id });
+    if (!user) {
+        throw new errors_1.badRequestError("Invalid Request");
     }
-    const emailExists = yield User_1.default.findOne({ email });
-    if (emailExists) {
-        throw new errors_1.badRequestError("Email has already been registered");
+    if (!name || !email) {
+        throw new errors_1.badRequestError("Invalid Request");
     }
-    const user = yield User_1.default.create({
-        email,
-        name,
-        password,
+    const newUser = yield User_1.default.findOneAndUpdate({ _id: id }, { name, email }, {
+        new: true,
+        runValidators: true,
     });
-    const payload = (0, createUserToken_1.default)(user);
-    (0, attachCookieToResponse_1.default)(res, payload);
-    res.status(http_status_codes_1.StatusCodes.CREATED).json({ payload });
+    res.status(http_status_codes_1.StatusCodes.OK).json(newUser);
 });
-exports.register = register;
+exports.updateUser = updateUser;
+const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const user = yield User_1.default.find({ _id: id });
+    if (!user) {
+        throw new errors_1.badRequestError("Invalid request");
+    }
+    yield User_1.default.findOneAndDelete({ _id: id });
+    res.status(http_status_codes_1.StatusCodes.OK).json({
+        msg: "Deleted",
+    });
+    // if(!toRemove) {
+    //   throw new badRequestError("User doesn't Exist")
+    // }
+});
+exports.deleteUser = deleteUser;

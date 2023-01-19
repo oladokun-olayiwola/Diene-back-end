@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const jwtFunction_1 = require("../extras/jwtFunction");
 const attachCookiesToResponse = (res, payload) => {
-    const token = (0, jwtFunction_1.createJWT)(payload.name);
+    const token = (0, jwtFunction_1.createJWT)(payload);
     const oneDay = 1000 * 60 * 60 * 24;
     res.cookie("token", token, {
         httpOnly: true,

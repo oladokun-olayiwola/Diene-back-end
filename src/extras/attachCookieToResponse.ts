@@ -1,13 +1,9 @@
 import { Response } from "express";
 import { createJWT } from "../extras/jwtFunction";
-
-interface user {
-  name: string;
-  _id: Object;
-}
+import { user } from "../interfaces/Types";
 
 const attachCookiesToResponse = (res: Response, payload: user) => {
-  const token = createJWT(payload.name);
+  const token = createJWT(payload);
   const oneDay = 1000 * 60 * 60 * 24;
 
   res.cookie("token", token, {

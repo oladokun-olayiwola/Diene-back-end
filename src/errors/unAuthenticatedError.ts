@@ -5,7 +5,7 @@ class unAuthenticatedError extends customAPIError {
   statusCode;
   constructor(message: string) {
     super(message);
-    this.statusCode = StatusCodes.BAD_REQUEST;
+    this.statusCode = StatusCodes.UNAUTHORIZED;
   }
 }
 

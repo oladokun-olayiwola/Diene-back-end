@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 // import validator from 'validator';
 import bcrypt from "bcryptjs";
 
@@ -6,29 +6,35 @@ interface IUser {
   name: string;
   email: string;
   password: string;
-  comparePassword(password:string): Promise <boolean>
+  comparePassword(password: string): Promise<boolean>;
 }
 
-const UserSchema = new Schema<IUser>({
-  name: {
-    type: String,
-    required: [true, "Please provide a name"],
-    minlength: 3,
-    maxlength: 30,
-    trim: true,
+const UserSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: [true, "Please provide a name"],
+      minlength: 3,
+      maxlength: 30,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Please provide a password"],
+      minlength: 6,
+      unique: true,
+      // validate: {validator: validator.isEmail, message: "Please provide valid email",},
+    },
+    email: {
+      type: String,
+      required: [true, "Pleae provide a valid email"],
+      match:
+        [/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i, "Please enter a valid email"],
+      unique: true,
+    },
   },
-  password: {
-    type: String,
-    required: [true, "Please provide a password"],
-    minlength: 6,
-    unique: true,
-    // validate: {validator: validator.isEmail, message: "Please provide valid email",},
-  },
-  email: {
-    type: String,
-    required: [true, "Pleae provide a valid email"],
-  },
-});
+  { timestamps: true }
+);
 
 UserSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
@@ -43,4 +49,4 @@ UserSchema.methods.comparePassword = async function (
   return isMatch;
 };
 
-export default model<IUser>("User", UserSchema);
+export default  mongoose.models.User || model<IUser>("User", UserSchema);
