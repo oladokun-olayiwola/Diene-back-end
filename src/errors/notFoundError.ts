@@ -5,7 +5,7 @@ class notFoundError extends customAPIError {
   statusCode;
   constructor(message: string) {
     super(message);
-    this.statusCode = StatusCodes.BAD_REQUEST;
+    this.statusCode = StatusCodes.NOT_FOUND;
   }
 }
 
