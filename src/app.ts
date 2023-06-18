@@ -1,6 +1,5 @@
 import express from "express";
-// import multer from "multer";
-// import path from "path";
+import cors from "cors";
 import { json } from "body-parser";
 import dotenv from "dotenv";
 import "express-async-errors";
@@ -20,18 +19,19 @@ import notFound from "./middlewares/not-found";
 
 const app = express();
 
-// export const storage = multer.diskStorage({
-//   destination: (_, _2, cb) => {
-//     cb(null, "Images")
-//   },
-//   filename(_, file, cb) {
-//     console.log(file);
-//     cb(null, Date.now() + path.extname(file.originalname))
-//   },
-// })
-
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    optionsSuccessStatus: 200,
+    credentials: true,
+  })
+);
 app.use(json());
 app.use(cookieParser(process.env.JWT_SECRET));
+
+app.get("/", (_, res) => {
+  res.send("Hey");
+});
 
 app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/auth", AuthRouter);
@@ -44,7 +44,7 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 4000;
 
 const start: () => Promise<void> = async () => {
-  await connectDB(process.env.CONNECTION_STRING!);
+  await connectDB(process.env.CONNECTION_STRING as string);
   try {
     app.listen(PORT, () => {
       console.log(`Listening to your server on port ${PORT} 😎🥰 `);
